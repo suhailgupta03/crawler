@@ -8,12 +8,14 @@ const fs = require('fs');
 const moment = require('moment');
 const Table = require('cli-table');
 let winston = require('winston');
+let writer = require('./writer').writer;
 
 let errL = chalk.red;
 let warL = chalk.yellow;
 let sucL = chalk.green;
 let statsL = chalk.black;
 
+Promise.promisifyAll(fs);
 
 const anchorPattern = /<a[^>]*>([^<]+)<\/a>/g;
 
@@ -27,7 +29,7 @@ module.exports.ucrawler = class UCrawler {
             this.seedQueue.enqueue(seed);
         }
 
-        let { logger, csvWriteDir } = options;
+        let { logger, csvWriteDir, createHTML, htmlWriteLocation } = options;
         if (logger) {
             if (logger !== winston) {
                 console.log(warL.bold(`Not using Winston as the default logger. It is 
@@ -41,6 +43,11 @@ module.exports.ucrawler = class UCrawler {
         }
         else
             console.log(warL(`Not received CSV writing directory. Shifting to use the current directory for logging`));
+
+        if (createHTML) {
+            this.createHTML = true;
+            this.htmlWriteLoc = htmlWriteLocation;
+        }
 
         this.init();
     }
@@ -196,6 +203,10 @@ module.exports.ucrawler = class UCrawler {
                 winston.info(`Unix timestamp for the last request made ${this.lastVisited}`);
                 let resp = r.resp;
                 let body = r.body;
+
+                if (this.createHTML)
+                    writer.write(body, this.htmlWriteLoc).catch(e => { winston.error(e) });
+
                 ++this.currentLevel; // Increment the recursion level by 1
 
                 let redirectDetected = false;

@@ -10,12 +10,14 @@ winston.add(winston.transports.File, {
 winston.remove(winston.transports.Console);
 
 const seedList = [
-    'http://almerathailand.com/'
+    'https://circussocial.com/'
 ];
 
 let crawler = new ucrawler(seedList, {
     csvWriteDir: process.env.URL_DIR,
-    logger: winston
+    logger: winston,
+    createHTML: process.env.CREATE_HTML == 'true' ? true : false,
+    htmlWriteLocation: process.env.HTML_WRITE_DIR
 });
 
 crawler.start();
