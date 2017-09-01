@@ -9,6 +9,8 @@ const moment = require('moment');
 const Table = require('cli-table');
 let winston = require('winston');
 let writer = require('./writer').writer;
+let Watch = require('./watch').watch;
+let Cluster = require('./cluster/cluster');
 
 let errL = chalk.red;
 let warL = chalk.yellow;
@@ -29,7 +31,7 @@ module.exports.ucrawler = class UCrawler {
             this.seedQueue.enqueue(seed);
         }
 
-        let { logger, csvWriteDir, createHTML, htmlWriteLocation } = options;
+        let { logger, csvWriteDir, createHTML, htmlWriteLocation, watchDir, watch } = options;
         if (logger) {
             if (logger !== winston) {
                 console.log(warL.bold(`Not using Winston as the default logger. It is 
@@ -43,6 +45,18 @@ module.exports.ucrawler = class UCrawler {
         }
         else
             console.log(warL(`Not received CSV writing directory. Shifting to use the current directory for logging`));
+
+        if (watch) {
+            console.log(warL(`Directory watch will be activated at ${watchDir}`));
+            /**
+             * Inject the watch service into the cluster
+             */
+            new Cluster()
+                .attachWatchService(new Watch(watchDir, { depth: 0 }));
+
+            winston.info(`Watch activated for ${watchDir}`);
+        } else
+            console.log(warL(`Note: Directory watch will not be activated`));
 
         if (createHTML) {
             this.createHTML = true;
@@ -200,12 +214,14 @@ module.exports.ucrawler = class UCrawler {
         winston.info(`Attempting a request to ${url}`);
         this._request(url)
             .then(r => {
+                if (this.createHTML) // Create HTML file
+                    writer.write(r.body, this.htmlWriteLoc).catch(e => { winston.error(e) });
+                return r;
+            })
+            .then(r => {
                 winston.info(`Unix timestamp for the last request made ${this.lastVisited}`);
                 let resp = r.resp;
                 let body = r.body;
-
-                if (this.createHTML)
-                    writer.write(body, this.htmlWriteLoc).catch(e => { winston.error(e) });
 
                 ++this.currentLevel; // Increment the recursion level by 1
 
