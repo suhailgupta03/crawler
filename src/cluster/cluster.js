@@ -100,6 +100,9 @@ class Cluster {
                     console.log(`Cluster Health: ${chalk.red.bold.italic(this.health[-1])}`);
                     winston.error('Cluster health: RED');
                 }
+                let workerStats = this.master.workerStats()
+                winston.info(`Engaged: ${workerStats.engaged} Idle: ${workerStats.idle}`);
+                // Log the worker stats
             }
         }, 6000);
     }

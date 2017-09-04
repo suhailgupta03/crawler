@@ -1,7 +1,6 @@
-const Worker = require('./worker');
+const { Worker, WORKER_ACTION_TYPE, WORKER_RESPONSE_TYPE } = require('./worker');
 const Queue = require('queue-fifo');
 const crypto = require('crypto');
-
 const engagementStatus = {
     'ENGAGED': 'engaged',
     'IDLE': 'idle'
@@ -10,7 +9,7 @@ const engagementStatus = {
 module.exports = class Master {
 
 
-    constructor(cluster, {logService}) {
+    constructor(cluster, { logService }) {
         this.cluster = cluster;
 
         if (cluster.isMaster) {
@@ -84,6 +83,7 @@ module.exports = class Master {
                 let worker = this.cluster.fork();
                 let workerId = crypto.randomBytes(8).toString('hex');
                 this.workerList.push(worker);
+                worker._native_id = workerId;
                 this.workerRoster[workerId] = {
                     'status': engagementStatus.IDLE,
                     'ref': worker
@@ -150,6 +150,27 @@ module.exports = class Master {
     }
 
     /**
+     * Gets the worker stats
+     * - Total number of engaged workers
+     * - Total number of idle workers
+     * @return {Object}
+     */
+    workerStats() {
+        let idleWorkers = 0, engagedWorkers = 0;
+        for(let workerId of Object.keys(this.workerRoster)) {
+            let status = this.workerRoster[workerId]['status'];
+            if(engagementStatus.ENGAGED == status)
+                engagedWorkers++;
+            else
+                idleWorkers++;
+        }
+        return {
+            idle: idleWorkers,
+            engaged: engagedWorkers
+        };   
+    }
+
+    /**
      * All messages from the worker to the 
      * master are received here
      * @param {Object} worker 
@@ -157,7 +178,22 @@ module.exports = class Master {
     activateMasterMessageListener(worker) {
 
         worker.on('message', (message) => {
-
+            let type = message.type;
+            if (WORKER_RESPONSE_TYPE.WORK_DONE == type) {
+                // Work done successfully
+                // Log a success message
+                this.logger.info(`${worker._native_id} completed the task`);
+            } else if (WORKER_RESPONSE_TYPE.WORK_NOT_DONE == type) {
+                // Worker failed to complete the task
+                // Log a failure message
+                this.logger.error(`${worker._native_id} failed to complete the task`);
+            }
+            /**
+             * Irrespective of type of message received
+             * change the status of worker from enagaged to
+             * idle
+             */
+            this.workerRoster[worker._native_id].status = engagementStatus.IDLE;
         });
     }
 
@@ -175,11 +211,11 @@ module.exports = class Master {
                         // Allot the processing to the worker
                         this.workerRoster[workerId]['ref'].send({
                             file: this.jobQueue.dequeue(),
-                            action: 'process-file'
+                            action: WORKER_ACTION_TYPE.PROCESS_FILE
                         });
                         // Change the worker status from IDLE to ENGAGED
                         this.workerRoster[workerId]['status'] = engagementStatus.ENGAGED;
-                        this.logger.info(`${this.workerRoster[workerId]} was engaged`);
+                        this.logger.info(`${workerId} was engaged`);
                     }
                 }
             }
