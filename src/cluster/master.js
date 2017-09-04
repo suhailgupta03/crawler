@@ -10,7 +10,7 @@ const engagementStatus = {
 module.exports = class Master {
 
 
-    constructor(cluster) {
+    constructor(cluster, {logService}) {
         this.cluster = cluster;
 
         if (cluster.isMaster) {
@@ -24,6 +24,7 @@ module.exports = class Master {
             this.workerRoster = {};
             this.serviceMap = {};
         }
+        this.logger = logService;
     }
 
     activate(workersToSpawn) {
@@ -35,12 +36,11 @@ module.exports = class Master {
     }
 
     get masterActivated() {
-        return this.masterActivated;
+        return this.isMasterActivated;
     }
 
     set masterActivated(activated) {
-        this.masterActivated = activated;
-        return this;
+        this.isMasterActivated = activated;
     }
 
     /**
@@ -63,9 +63,11 @@ module.exports = class Master {
                             this.queue(path); // Add the job received into the master queue;
                             // Queue is actively monitored and jobs are delegated to the 
                             // workers in the FIFO manner
+                            this.logger.info(`New path added to master queue ${path}`);
                         });
                     })
                     .catch(err => {
+                        this.logger.error(err);
                         console.log(errL(err));
                     })
             }
@@ -73,10 +75,7 @@ module.exports = class Master {
         return this;
     }
 
-    /**
-     *  Note: It is important to keep the master process
-     * short and only in charge of managing workers
-     */
+
     start(workerCount) {
 
         if (this.cluster.isMaster) {
@@ -95,9 +94,17 @@ module.exports = class Master {
                 // Activate the job queue monitor
                 this.activateQueueMonitor();
             }
-            // Activates the message listener for all workers
-            Worker.activateMessageListener();
+            this.logger.info(`Total workers forked ${this.totalWorkers}`);
         }
+    }
+
+    /**
+     * Activates the message listener for child processes
+     * forked
+     */
+    static activateWorkerMessageListener() {
+        // Activates the message listener for all workers
+        Worker.activateMessageListener();
     }
 
     /**
@@ -138,7 +145,7 @@ module.exports = class Master {
      * Gets the total number of workers forked
      * by the master
      */
-    totalWorkers() {
+    totWorker() {
         return this.totalWorkers;
     }
 
@@ -172,6 +179,7 @@ module.exports = class Master {
                         });
                         // Change the worker status from IDLE to ENGAGED
                         this.workerRoster[workerId]['status'] = engagementStatus.ENGAGED;
+                        this.logger.info(`${this.workerRoster[workerId]} was engaged`);
                     }
                 }
             }

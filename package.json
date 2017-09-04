@@ -17,6 +17,7 @@
     "winston-logs-display": "^0.1.1"
   },
   "scripts": {
-    "test": "node test/test"
+    "test": "node test/test",
+    "cluster": "node src/cluster/cluster.js --i --activate --watch /home/suhail/circus/crawler/url_data/download/"
   }
 }

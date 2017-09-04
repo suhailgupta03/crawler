@@ -34,7 +34,9 @@ module.exports.watch = class Watch {
                     return true;
             })
             .then(status => {
-                let depth = this.options.depth ? this.options.depth : 0;
+                let op = this.options ? this.options : {};
+
+                let depth = op.depth ? op.depth : 0;
 
                 return chokidar.watch(this.dirname, {
                     usePolling: true,

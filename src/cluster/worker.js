@@ -6,7 +6,6 @@ module.exports = class Worker {
      * from the master are received here
      */
     static activateMessageListener() {
-
         process.on('message', (message) => {
             console.log(`Worker received a job: ${message}`);
         });

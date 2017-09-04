@@ -9,8 +9,7 @@ const moment = require('moment');
 const Table = require('cli-table');
 let winston = require('winston');
 let writer = require('./writer').writer;
-let Watch = require('./watch').watch;
-let Cluster = require('./cluster/cluster');
+const { fork } = require('child_process');
 
 let errL = chalk.red;
 let warL = chalk.yellow;
@@ -48,12 +47,18 @@ module.exports.ucrawler = class UCrawler {
 
         if (watch) {
             console.log(warL(`Directory watch will be activated at ${watchDir}`));
+
             /**
+             * Fork the cluster process
              * Inject the watch service into the cluster
+             * Note: Fork is a special instance of spawn, that runs a fresh instance of the V8 engine
              */
-            new Cluster()
-                .activate()
-                .attachWatchService(new Watch(watchDir, { depth: 0 }));
+            const _cluster = fork('src/cluster/cluster.js', [
+                '--i',
+                '--activate',
+                `--watch ${watchDir}`,
+            ]);
+
 
             winston.info(`Watch activated for ${watchDir}`);
         } else

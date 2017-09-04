@@ -28,7 +28,19 @@ Crawler
 
     crawler.start();
 
+**Start cluster module**
+> node src/cluster/cluster.js --i --activate --watch /path/to/dir depth 0
 
+or
+
+    yarn run cluster
+ 
+ **Start crawler module**
+
+    yarn run test
+
+>  Make sure to edit the relevant paths inside the .env file and
+> package.json
 
 
 
