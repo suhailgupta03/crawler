@@ -52,6 +52,7 @@ module.exports.ucrawler = class UCrawler {
              * Inject the watch service into the cluster
              */
             new Cluster()
+                .activate()
                 .attachWatchService(new Watch(watchDir, { depth: 0 }));
 
             winston.info(`Watch activated for ${watchDir}`);

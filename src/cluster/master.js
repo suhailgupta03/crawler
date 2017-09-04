@@ -11,9 +11,9 @@ module.exports = class Master {
 
 
     constructor(cluster) {
+        this.cluster = cluster;
 
         if (cluster.isMaster) {
-            this.cluster = cluster;
             if (!this.cluster)
                 throw new Error('Cannot start master without having the cluster reference');
 
@@ -22,7 +22,55 @@ module.exports = class Master {
             this.workerList = [];
             this.jobQueue = new Queue();
             this.workerRoster = {};
+            this.serviceMap = {};
         }
+    }
+
+    activate(workersToSpawn) {
+        if (this.cluster.isMaster) {
+            this.start(workersToSpawn); // Start the master process
+            this.masterActivated = true;
+        }
+        return this;
+    }
+
+    get masterActivated() {
+        return this.masterActivated;
+    }
+
+    set masterActivated(activated) {
+        this.masterActivated = activated;
+        return this;
+    }
+
+    /**
+     * Attach the file system watch
+     * @param {Object} watch 
+     * @param {Boolean} activate 
+     */
+    attachFsWatch(watch, activate) {
+        if (this.cluster.isMaster) {
+            this.serviceMap['watch'] = watch;
+            if (activate) {
+                if (!this.masterActivated) {
+                    throw new Error('Cannot activate the watch service without activating the cluster');
+                    return;
+                }
+
+                this.serviceMap['watch'].activateWatch()
+                    .then(poll => {
+                        poll.on('add', (path) => {
+                            this.queue(path); // Add the job received into the master queue;
+                            // Queue is actively monitored and jobs are delegated to the 
+                            // workers in the FIFO manner
+                        });
+                    })
+                    .catch(err => {
+                        console.log(errL(err));
+                    })
+            }
+        }
+        return this;
     }
 
     /**
@@ -34,7 +82,7 @@ module.exports = class Master {
         if (this.cluster.isMaster) {
             for (let i = 0; i < workerCount; i++) {
                 // Fork the workers
-                let worker = cluster.fork();
+                let worker = this.cluster.fork();
                 let workerId = crypto.randomBytes(8).toString('hex');
                 this.workerList.push(worker);
                 this.workerRoster[workerId] = {
