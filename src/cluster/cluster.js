@@ -118,6 +118,8 @@ class Cluster {
          * requests
          */
         cluster.on('online', (worker) => {
+            this.master.addWorkerToRoster(worker); // Adds worker to working roster
+            // Worker roster is responsible work assignment to the workers
             this.master.workerAlive(); // Increments the online-worker count by 1
             console.log(joinM(`Worker ${worker.process.pid} joined the cluster\n`));
         });
@@ -126,6 +128,8 @@ class Cluster {
          * Emitted whenever a worker dies
          */
         cluster.on('exit', (worker, code, signal) => {
+            this.master.removeWorkerFromRoster(worker); // Removes worker from the working roster
+            // Note: Only workers in the worker roster are allotted task
             this.master.workerDead(); // Decrements the online-worker count by 1
             console.log(leftM(`Worker ${worker.process.pid} has left the cluster\n`));
             // Fork a new worker to keep the balance

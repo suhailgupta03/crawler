@@ -1,6 +1,7 @@
 
 const WORKER_ACTION_TYPE = {
-    'PROCESS_FILE': '_PROCESS_FILE'
+    'PROCESS_FILE': '_PROCESS_FILE',
+    'SHUT_DOWN': '_SHUT_DOWN'
 }
 
 const WORKER_RESPONSE_TYPE = {
@@ -45,6 +46,10 @@ module.exports.Worker = class Worker {
     static _process_file() {
         let response = Worker.childResponseTemplate();
         return Promise.resolve(response);
+    }
+
+    static _shut_down(nativeWorkerId) {
+        
     }
 
     static childResponseTemplate() {

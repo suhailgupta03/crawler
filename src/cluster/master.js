@@ -81,13 +81,7 @@ module.exports = class Master {
             for (let i = 0; i < workerCount; i++) {
                 // Fork the workers
                 let worker = this.cluster.fork();
-                let workerId = crypto.randomBytes(8).toString('hex');
                 this.workerList.push(worker);
-                worker._native_id = workerId;
-                this.workerRoster[workerId] = {
-                    'status': engagementStatus.IDLE,
-                    'ref': worker
-                };
                 ++this.totalWorkers;
                 // Activates the message listener from workers
                 this.activateMasterMessageListener(this.workerList[i]);
@@ -96,6 +90,37 @@ module.exports = class Master {
             }
             this.logger.info(`Total workers forked ${this.totalWorkers}`);
         }
+    }
+
+    /**
+     * Adds worker to a roster
+     * @param {Object} worker 
+     */
+    addWorkerToRoster(worker) {
+        if (worker) {
+            let workerId = crypto.randomBytes(8).toString('hex');
+            worker._native_id = workerId;
+            this.workerRoster[workerId] = {
+                'status': engagementStatus.IDLE,
+                'ref': worker
+            };
+        }
+        return this;
+    }
+
+    /**
+     * Removes worker from the roster
+     * @param {Object} worker 
+     */
+    removeWorkerFromRoster(worker) {
+        if(worker){
+            delete this.workerRoster[worker._native_id];
+            // Question: What happens if a living/engaged worker is removed from the roster?
+            // Answer: You will reduce the compute capability of the cluster.
+            // You will want to remove the worker from the roster, when the process has been 
+            // killed or the worker killed itself
+        }
+        return this;
     }
 
     /**
@@ -157,9 +182,9 @@ module.exports = class Master {
      */
     workerStats() {
         let idleWorkers = 0, engagedWorkers = 0;
-        for(let workerId of Object.keys(this.workerRoster)) {
+        for (let workerId of Object.keys(this.workerRoster)) {
             let status = this.workerRoster[workerId]['status'];
-            if(engagementStatus.ENGAGED == status)
+            if (engagementStatus.ENGAGED == status)
                 engagedWorkers++;
             else
                 idleWorkers++;
@@ -167,7 +192,7 @@ module.exports = class Master {
         return {
             idle: idleWorkers,
             engaged: engagedWorkers
-        };   
+        };
     }
 
     /**
@@ -220,5 +245,21 @@ module.exports = class Master {
                 }
             }
         }, 1000);
+    }
+
+    /**
+     * 
+     * @param {String} workerNativeId 
+     */
+    dismissWorker(workerNativeId) {
+        if (workerNativeId) {
+            // Check if the worker is not engaged
+            if (this.workerRoster[workerNativeId]['status'] != engagementStatus.ENGAGED) {
+                delete this.workerRoster[workerNativeId]; // Remove the worker from the roster
+            } else {
+                throw new Error('Cannot dismiss a worker when it is engaged');
+            }
+
+        }
     }
 }
