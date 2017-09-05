@@ -259,7 +259,6 @@ module.exports = class Master {
             } else {
                 throw new Error('Cannot dismiss a worker when it is engaged');
             }
-
         }
     }
 }

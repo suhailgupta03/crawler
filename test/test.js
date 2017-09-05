@@ -10,7 +10,7 @@ winston.add(winston.transports.File, {
 winston.remove(winston.transports.Console);
 
 const seedList = [
-    'https://circussocial.com/'
+    'http://almerathailand.com/'
 ];
 
 let crawler = new ucrawler(seedList, {
