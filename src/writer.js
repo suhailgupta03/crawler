@@ -7,15 +7,20 @@ Promise.promisifyAll(fs);
 
 module.exports.writer = class Writer {
 
-    static write(content, location) {
-        if(!content)
+    static writeHtml(content, location, url) {
+        if (!content)
             return Promise.resolve();
-        if(!location)
+        if (!location)
             return Promise.reject('Cannot write to an empty location');
 
-        let fileName = `cr_${crypto.randomBytes(32).toString('hex')}_${moment().unix()}.html`;
+        /**
+         * Filename convention to be followed
+         * UNIXTIMESTAMP_EIGHTRANDOMBYTES_HEXACONVERTEDPOSTURL.html
+         */
+
+        let fileName = `cr_${moment().unix()}_${crypto.randomBytes(8).toString('hex')}_${Buffer.from(url).toString('hex')}.html`;
         location = `${location}/${fileName}`;
-        location = location.replace(/[\/]{2,}/g,'/');
+        location = location.replace(/[\/]{2,}/g, '/');
         return fs.writeFileAsync(location, content);
     }
 }

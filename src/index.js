@@ -221,7 +221,7 @@ module.exports.ucrawler = class UCrawler {
         this._request(url)
             .then(r => {
                 if (this.createHTML) // Create HTML file
-                    writer.write(r.body, this.htmlWriteLoc).catch(e => { winston.error(e) });
+                    writer.writeHtml(r.body, this.htmlWriteLoc, url).catch(e => { winston.error(e) });
                 return r;
             })
             .then(r => {

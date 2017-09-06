@@ -1,31 +1,28 @@
 const cheerio = require('cheerio')
 const fs = require('fs');
 const path = require('path');
-const almera = require('./almera').process;
+const almera = require('./almera');
 
-let Hnalyzer = (function () {
+class Hnalyzer {
 
-    let pvtProps = new WeakMap();
-
-    class Hnalyzer {
-
-        constructor() {
-            
-        }
-
-        parse(filePath) {
-            if(filePath) {
-                let ext = path.extname(filePath);
-                if(ext.toLowerCase() == '.html') {
+    static parse(filePath) {
+        if (filePath) {
+            let ext = path.extname(filePath);
+            if (ext.toLowerCase() == '.html') {
+                try {
                     // Load and begin parsing
                     const $ = cheerio.load(fs.readFileSync(filePath));
-                    almera($);
-                }else {
-                    // Can only parser HTML files
-                    throw new Error('Can only parse HTML files');
+                    const responseList = almera($, filePath);
+                    return Promise.resolve(responseList);
+                }catch(err) {
+                    return Promise.reject(err);
                 }
+            } else {
+                // Can only parser HTML files
+                throw new Error('Can only parse HTML files');
             }
         }
     }
+}
 
-})();
+module.exports = Hnalyzer;

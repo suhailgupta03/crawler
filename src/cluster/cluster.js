@@ -34,7 +34,7 @@ class Cluster {
                 workers = numCPUs;
 
             this.workersToSpawn = workers; // Maximum number of workers to spawn
-            this.master = new Master(cluster, {logService: winston}); // Init the master
+            this.master = new Master(cluster, { logService: winston }); // Init the master
             this.activateHealthCheckUp(); // Activates the cluster health checkup
             this.activateListeners(); // Activate general cluster listeners
 
@@ -55,9 +55,8 @@ class Cluster {
                     }
                 }
             }
-        } else {
-            Master.activateWorkerMessageListener();
-        }
+        } else
+            Master.activateWorkerMessageListener(); // Activates worker message listener
     }
 
     /**
@@ -90,7 +89,7 @@ class Cluster {
                 let totalWorkers = this.master.totWorker();
                 let workersOnline = this.master.onlineWorkers();
 
-                if (totalWorkers == workersOnline) 
+                if (totalWorkers == workersOnline)
                     console.log(`Cluster Health: ${chalk.green.bold.italic(this.health[1])}`);
                 else if (workersOnline > 0) {
                     console.log(`Cluster Health: ${chalk.yellow.bold.italic(this.health[0])}`);

@@ -1,3 +1,4 @@
+const Hnalyzer = require('../html-parser/index');
 
 const WORKER_ACTION_TYPE = {
     'PROCESS_FILE': '_PROCESS_FILE',
@@ -21,12 +22,14 @@ module.exports.Worker = class Worker {
             let response = Worker.childResponseTemplate();
             if (action) {
                 action = action.toLowerCase();
+                let task = message.task;
                 try {
-                    let r = await Worker[action]();
+                    let r = await Worker[action]({ filePath: task });
                     process.send({
                         status: true,
                         message: 'ok',
-                        type: WORKER_RESPONSE_TYPE.WORK_DONE
+                        type: WORKER_RESPONSE_TYPE.WORK_DONE,
+                        proof: r.proof
                     });
                 } catch (err) {
                     response.status = false;
@@ -43,13 +46,22 @@ module.exports.Worker = class Worker {
         });
     }
 
-    static _process_file() {
-        let response = Worker.childResponseTemplate();
-        return Promise.resolve(response);
+    static async _process_file({ filePath }) {
+        if (!filePath)
+            return Promise.reject('FilePath cannot be empty');
+
+        try {
+            let response = Worker.childResponseTemplate();
+            let responseList = await Hnalyzer.parse(filePath);
+            response.proof = responseList; // proof; container of the response; the proof of work done
+            return Promise.resolve(response);
+        }catch(err) {
+            return Promise.reject(err);
+        }
     }
 
     static _shut_down(nativeWorkerId) {
-        
+
     }
 
     static childResponseTemplate() {

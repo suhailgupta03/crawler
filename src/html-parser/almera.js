@@ -1,6 +1,29 @@
 const crypto = require('crypto');
+const moment = require('moment');
 
-module.exports.process = (parser) => {
+let _process = (parser, fileName) => {
+
+    /**
+     * filename format:
+     * UNIXTIMESTAMP_EIGHTRANDOMBYTES_HEXACONVERTEDPOSTURL.html
+     * 
+     * HEXACONVERTEDPOSTURL: Post URL converted to hexa decimal
+     * Example:
+     * cr_1504692969_09b46ca134656bd7_687474703a2f2f616c2e7068703f746f7069633d3233343337.html
+     */
+
+    let filePattern = fileName.match(/cr_[^.html]+/);
+    if (filePattern)
+        fileName = filePattern[0];
+    else
+        throw new Error('Invalid filename received');
+
+    let fileNameSplit = fileName.split('_');
+    if (fileNameSplit.length != 4)
+        throw new Error('Invalid format for filename');
+
+    let postURL = Buffer.from(fileNameSplit[3], 'hex').toString();
+
     let $ = parser;
 
     let postWrapper = $('.post_wrapper');
@@ -11,22 +34,25 @@ module.exports.process = (parser) => {
 
     if (postWrapper.length > 0) {
         // Posts detected!!
-        let postTitle = $($('#forumposts .cat_bar .catbg').children()[2]).text();
+        let postTitle = $('#forumposts .cat_bar .catbg').text();
         postTitle = postTitle.replace(/\([\w\s]+\)$/g, '').trim(); // Main post title
 
         for (let post of postWrapper) {
+            let authorName = $(post).find('.poster h4 a').text();
+            let postM = $(post).find('.postarea .post .inner').text();
+            let title = $(post).find('.postarea .flow_hidden .keyinfo h5 a').text(); // Reply post title
+            let postDate = $(post).find('.postarea .flow_hidden .keyinfo .smalltext').text();
+            postDate = postDate.replace('»', '').replace('«', '').replace('เมื่อ:', '');
 
-            let authorName = $(post).find('.poster h4 a font font').text();
-            let post = $(post).find('.postarea .post .inner').text();
-            let title = $(post).find('.postarea .flow_hidden .keyinfo a font').text(); // Reply post title
-            let postDate = $($(post).find('postarea .flow_hidden .keyinfo .smalltext').children()[2]).text();
-            postDate = postDate.replace('»', '');
-
-            let profile = $(post).find('.poster ul .avatar:first');
+            let profile = $(post).find('.poster ul .avatar').first();
+            /**
+             * Note: Do not use pseudo class :first
+             * @see https://github.com/cheeriojs/cheerio/issues/575
+             */
             let profileLink = '', profileImage = '';
             if (profile) {
-                profileLink = $(post).find('.poster ul .avatar:first a').attr('href');
-                profileImage = $(post).find('.poster ul .avatar:first a img').attr('src');
+                profileLink = $(post).find('.poster ul .avatar').first().find('a').attr('href');
+                profileImage = $(post).find('.poster ul .avatar').first().find('a img').attr('src');
             }
 
             let postFormActionURL = $('#quickModForm').attr('action');
@@ -38,11 +64,33 @@ module.exports.process = (parser) => {
                 postId = crypto.randomBytes(8).toString('hex'); // Generate the custom ID
             }
 
-            responseList.push({
+            /**
+             * Note: 
+             * At the moment of writing this parser almerathailand.com
+             * doesn't give a publishing date of the topic. Considering 
+             * parsed date equal to the publishing date
+             */
+            let parsedDate = moment().toISOString();
 
-            })
+            responseList.push({
+                summary: postM,
+                author_link: profileLink,
+                pubdate: postDate,
+                link: postURL,
+                title: title
+            });
         }
     }
 
-
+    return responseList;
 }
+
+if (false) {
+    _process(
+        require('cheerio').load(require('fs').readFileSync('/home/suhail/circus/crawler/url_data/download/cr_1504692969_09b46ca134656bd7_687474703a2f2f616c6d657261746861696c616e642e636f6d2f696e6465782e7068703f746f7069633d3233343337.html')),
+        'cr_1504692969_09b46ca134656bd7_687474703a2f2f616c6d657261746861696c616e642e636f6d2f696e6465782e7068703f746f7069633d3233343337.html'
+    );
+}
+
+
+module.exports = _process;

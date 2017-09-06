@@ -208,6 +208,7 @@ module.exports = class Master {
                 // Work done successfully
                 // Log a success message
                 this.logger.info(`${worker._native_id} completed the task`);
+                console.log(message.proof, 'PROOF');
             } else if (WORKER_RESPONSE_TYPE.WORK_NOT_DONE == type) {
                 // Worker failed to complete the task
                 // Log a failure message
@@ -235,7 +236,7 @@ module.exports = class Master {
                     if (engagementStatus.IDLE == this.workerRoster[workerId]['status']) {
                         // Allot the processing to the worker
                         this.workerRoster[workerId]['ref'].send({
-                            file: this.jobQueue.dequeue(),
+                            task: this.jobQueue.dequeue(),
                             action: WORKER_ACTION_TYPE.PROCESS_FILE
                         });
                         // Change the worker status from IDLE to ENGAGED
