@@ -20,7 +20,7 @@ let _process = (parser, fileName) => {
 
     let fileNameSplit = fileName.split('_');
     if (fileNameSplit.length != 4)
-        throw new Error('Invalid format for filename');
+        throw new Error('Invalid format for fislename');
 
     let postURL = Buffer.from(fileNameSplit[3], 'hex').toString();
 
@@ -30,7 +30,7 @@ let _process = (parser, fileName) => {
 
     postWrapper = Array.from(postWrapper);
 
-    let responseList = [];
+    let tresponse = {};
 
     if (postWrapper.length > 0) {
         // Posts detected!!
@@ -64,32 +64,40 @@ let _process = (parser, fileName) => {
                 postId = crypto.randomBytes(8).toString('hex'); // Generate the custom ID
             }
 
-            /**
-             * Note: 
-             * At the moment of writing this parser almerathailand.com
-             * doesn't give a publishing date of the topic. Considering 
-             * parsed date equal to the publishing date
-             */
-            let parsedDate = moment().toISOString();
-
-            responseList.push({
+            let _pdata = {
                 summary: postM,
                 author_link: profileLink,
                 pubdate: postDate,
                 link: postURL,
                 title: title
-            });
+            };
+
+            if (tresponse.data)
+                tresponse.data.push(_pdata);
+            else
+                tresponse.data = [_pdata];
         }
+
+        /**
+         * Note: 
+         * At the moment of writing this parser almerathailand.com
+         * doesn't give a publishing date of the topic. Considering 
+         * parsed date equal to the publishing date
+         */
+        let parsedDate = moment().unix(); // Unix timestamp
+        tresponse.parsedDate = parsedDate;
     }
 
-    return responseList;
+    return tresponse;
 }
 
-if (false) {
-    _process(
+if (process.argv[2] == 'debug') {
+    let r = _process(
         require('cheerio').load(require('fs').readFileSync('/home/suhail/circus/crawler/url_data/download/cr_1504692969_09b46ca134656bd7_687474703a2f2f616c6d657261746861696c616e642e636f6d2f696e6465782e7068703f746f7069633d3233343337.html')),
         'cr_1504692969_09b46ca134656bd7_687474703a2f2f616c6d657261746861696c616e642e636f6d2f696e6465782e7068703f746f7069633d3233343337.html'
     );
+
+    console.log(r);
 }
 
 

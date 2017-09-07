@@ -34,7 +34,7 @@ module.exports.Worker = class Worker {
                 } catch (err) {
                     response.status = false;
                     response.message = err.message;
-                    return response;
+                    return Promise.reject(response);
                 }
             } else {
                 process.send({
@@ -55,7 +55,7 @@ module.exports.Worker = class Worker {
             let responseList = await Hnalyzer.parse(filePath);
             response.proof = responseList; // proof; container of the response; the proof of work done
             return Promise.resolve(response);
-        }catch(err) {
+        } catch (err) {
             return Promise.reject(err);
         }
     }

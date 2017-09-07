@@ -12,9 +12,9 @@ class Hnalyzer {
                 try {
                     // Load and begin parsing
                     const $ = cheerio.load(fs.readFileSync(filePath));
-                    const responseList = almera($, filePath);
+                    let responseList = almera($, filePath);
                     return Promise.resolve(responseList);
-                }catch(err) {
+                } catch (err) {
                     return Promise.reject(err);
                 }
             } else {
