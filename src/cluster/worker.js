@@ -24,8 +24,9 @@ module.exports.Worker = class Worker {
             if (action) {
                 action = action.toLowerCase();
                 let task = message.task;
+                let term = message.term;
                 try {
-                    let r = await Worker[action]({ filePath: task });
+                    let r = await Worker[action]({ filePath: task, term });
                     /**
                      * Note: process.send uses JSON.stringify() internally to 
                      * serialize the message.
@@ -60,13 +61,13 @@ module.exports.Worker = class Worker {
         });
     }
 
-    static async _process_file({ filePath }) {
+    static async _process_file({ filePath, term }) {
         if (!filePath)
             return Promise.reject('FilePath cannot be empty');
 
         try {
             let response = Worker.childResponseTemplate();
-            let responseList = await Hnalyzer.parse(filePath);
+            let responseList = await Hnalyzer.parse(filePath, {filter: term});
             response.proof = responseList; // proof; container of the response; the proof of work done
             return Promise.resolve(response);
         } catch (err) {

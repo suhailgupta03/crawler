@@ -22,6 +22,7 @@ module.exports = class Master {
             this.jobQueue = new Queue();
             this.workerRoster = {};
             this.serviceMap = {};
+            this.term = '';
         }
         this.logger = logService;
     }
@@ -90,6 +91,15 @@ module.exports = class Master {
             }
             this.logger.info(`Total workers forked ${this.totalWorkers}`);
         }
+    }
+
+    /**
+     * Inits the term filter during the processing of posts
+     * @param {String} t 
+     */
+    termSearch(t) {
+        this.term = t;
+        return this;
     }
 
     /**
@@ -245,7 +255,8 @@ module.exports = class Master {
                         this.workerRoster[workerId]['ref'].send({
                             task: this.jobQueue.dequeue(),
                             action: WORKER_ACTION_TYPE.PROCESS_FILE,
-                            logger: this.logger
+                            logger: this.logger,
+                            term: this.term
                         });
                         // Change the worker status from IDLE to ENGAGED
                         this.workerRoster[workerId]['status'] = engagementStatus.ENGAGED;

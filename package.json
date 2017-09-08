@@ -19,7 +19,7 @@
   },
   "scripts": {
     "test": "node test/test",
-    "cluster": "node src/cluster/cluster.js --i --activate --watch /home/suhail/circus/crawler/url_data/download/",
+    "cluster": "node src/cluster/cluster.js --i --activate --watch /home/suhail/circus/crawler/url_data/download/ --word แอคมินคลับ",
     "almera": "node-debug src/html-parser/almera.js  debug"
   }
 }

@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const moment = require('moment');
 
-let _process = (parser, fileName) => {
+let _process = (parser, fileName, { filter }) => {
 
     /**
      * filename format:
@@ -47,7 +47,7 @@ let _process = (parser, fileName) => {
             // momentjs to rescue
             // Sample input: 31มี.ค.2017, 16:56:51
             // Sample output: 2017-03-31T11:26:51.000Z
-            postDate = moment(postDate,'DDMMMMYYYY, HH:mm:ss','th').locale('en').toISOString();
+            postDate = moment(postDate, 'DDMMMMYYYY, HH:mm:ss', 'th').locale('en').toISOString();
             let profile = $(post).find('.poster ul .avatar').first();
             /**
              * Note: Do not use pseudo class :first
@@ -68,23 +68,35 @@ let _process = (parser, fileName) => {
                 postId = crypto.randomBytes(8).toString('hex'); // Generate the custom ID
             }
 
-            let _pdata = {
-                summary: postM,
-                author_link: profileLink,
-                pubdate: postDate,
-                link: postURL,
-                title: title,
-                author: authorName,
-                date: moment().format('MM/DD/YYYY HH:mm:ss'),
-                id: postId,
-                tags: []
-            };
+            let include = true;
+            if (filter && !postM.includes(filter)) { // Cannot include this post if it does not match the 
+                // filter criteria
+                include = false;
+            }
 
-            if (tresponse.data)
-                tresponse.data.push(_pdata);
-            else
-                tresponse.data = [_pdata];
+            if (include) {
+                let _pdata = {
+                    summary: postM,
+                    author_link: profileLink,
+                    pubdate: postDate,
+                    link: postURL,
+                    title: title,
+                    author: authorName,
+                    date: moment().format('MM/DD/YYYY HH:mm:ss'),
+                    id: postId,
+                    tags: []
+                };
+
+                if (tresponse.data)
+                    tresponse.data.push(_pdata);
+                else
+                    tresponse.data = [_pdata];
+            }
+
         }
+
+        if(!tresponse.data)
+            tresponse.data = [];
 
         /**
          * Note: 

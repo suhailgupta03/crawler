@@ -53,6 +53,12 @@ class Cluster {
                         // Attach the watch service
                         this.attachWatchService(new Watch(watchDir));
                     }
+
+                    let specificSearch = argStr.match(/[-]{2}word\s[\w]+/);
+                    if(specificSearch){
+                        let ssearch = specificSearch[0].replace('--word','').trim();
+                        this.master.termSearch(ssearch); // Inits the term filter to be used for file processing
+                    }
                 }
             }
         } else
