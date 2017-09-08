@@ -26,6 +26,12 @@ module.exports.Worker = class Worker {
                 let task = message.task;
                 try {
                     let r = await Worker[action]({ filePath: task });
+                    /**
+                     * Note: process.send uses JSON.stringify() internally to 
+                     * serialize the message.
+                     * @see https://nodejs.org/api/process.html#process_process_send_message_sendhandle_options_callback
+                     * @see https://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify
+                     */
                     process.send({
                         status: true,
                         message: 'ok',
