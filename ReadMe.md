@@ -42,7 +42,7 @@ or
 >  Make sure to edit the relevant paths inside the .env file and
 > package.json
 
-Elastic Search
+Install Elastic Search To Use With Crawler
 --------------
 [Ubuntu](https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html)
 
