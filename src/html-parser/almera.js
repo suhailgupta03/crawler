@@ -43,7 +43,11 @@ let _process = (parser, fileName) => {
             let title = $(post).find('.postarea .flow_hidden .keyinfo h5 a').text(); // Reply post title
             let postDate = $(post).find('.postarea .flow_hidden .keyinfo .smalltext').text();
             postDate = postDate.replace('»', '').replace('«', '').replace('เมื่อ:', '');
-
+            // Need to convert thai date to english
+            // momentjs to rescue
+            // Sample input: 31มี.ค.2017, 16:56:51
+            // Sample output: 2017-03-31T11:26:51.000Z
+            postDate = moment(postDate,'DDMMMMYYYY, HH:mm:ss','th').locale('en').toISOString();
             let profile = $(post).find('.poster ul .avatar').first();
             /**
              * Note: Do not use pseudo class :first
@@ -69,7 +73,11 @@ let _process = (parser, fileName) => {
                 author_link: profileLink,
                 pubdate: postDate,
                 link: postURL,
-                title: title
+                title: title,
+                author: authorName,
+                date: moment().format('MM/DD/YYYY HH:mm:ss'),
+                id: postId,
+                tags: []
             };
 
             if (tresponse.data)

@@ -7,7 +7,8 @@ const WORKER_ACTION_TYPE = {
 
 const WORKER_RESPONSE_TYPE = {
     'WORK_DONE': '_WORK_DONE',
-    'WORK_NOT_DONE': '_WORK_NOT_DONE'
+    'WORK_NOT_DONE': '_WORK_NOT_DONE',
+    'ERROR_REPORTED': '_ERROR_REPORTED'
 };
 
 module.exports.Worker = class Worker {
@@ -34,14 +35,21 @@ module.exports.Worker = class Worker {
                 } catch (err) {
                     response.status = false;
                     response.message = err.message;
-                    return Promise.reject(response);
+                    process.send({
+                        status: false,
+                        message: err.message,
+                        type: WORKER_RESPONSE_TYPE.ERROR_REPORTED,
+                        _trace: err.stack
+                    }); // Report the error back to master
                 }
             } else {
+                let err = new Error('Invalid action received');
                 process.send({
                     status: false,
-                    message: 'Invalid action received',
-                    type: WORKER_RESPONSE_TYPE.WORK_NOT_DONE
-                });
+                    message: err.message,
+                    type: WORKER_RESPONSE_TYPE.WORK_NOT_DONE,
+                    trace: err.stack
+                }); // Report the error back to master
             }
         });
     }
@@ -56,7 +64,7 @@ module.exports.Worker = class Worker {
             response.proof = responseList; // proof; container of the response; the proof of work done
             return Promise.resolve(response);
         } catch (err) {
-            return Promise.reject(err);
+            return Promise.reject(err); // Report the error back
         }
     }
 

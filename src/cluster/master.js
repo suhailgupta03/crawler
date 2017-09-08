@@ -113,7 +113,7 @@ module.exports = class Master {
      * @param {Object} worker 
      */
     removeWorkerFromRoster(worker) {
-        if(worker){
+        if (worker) {
             delete this.workerRoster[worker._native_id];
             // Question: What happens if a living/engaged worker is removed from the roster?
             // Answer: You will reduce the compute capability of the cluster.
@@ -213,6 +213,13 @@ module.exports = class Master {
                 // Worker failed to complete the task
                 // Log a failure message
                 this.logger.error(`${worker._native_id} failed to complete the task`);
+            } else if (WORKER_RESPONSE_TYPE.ERROR_REPORTED == type) {
+                // Worker reported an error
+                // Log the error message)
+                this.logger.error(JSON.stringify({
+                    err: message.message,
+                    trace: message._trace
+                }));
             }
             /**
              * Irrespective of type of message received

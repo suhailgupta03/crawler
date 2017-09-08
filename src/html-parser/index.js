@@ -15,11 +15,11 @@ class Hnalyzer {
                     let responseList = almera($, filePath);
                     return Promise.resolve(responseList);
                 } catch (err) {
-                    return Promise.reject(err);
+                    return Promise.reject(err); // Report the error back
                 }
             } else {
                 // Can only parser HTML files
-                throw new Error('Can only parse HTML files');
+                return Promise.reject('Can only parse HTML files'); // Report the error back
             }
         }
     }
