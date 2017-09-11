@@ -256,7 +256,9 @@ module.exports = class Master {
                             task: this.jobQueue.dequeue(),
                             action: WORKER_ACTION_TYPE.PROCESS_FILE,
                             logger: this.logger,
-                            term: this.term
+                            term: this.term,
+                            writeLoc: process.env.PARSED_POST_FILE_LOC // This tells where to write the file after 
+                            // the worker has processed it
                         });
                         // Change the worker status from IDLE to ENGAGED
                         this.workerRoster[workerId]['status'] = engagementStatus.ENGAGED;
