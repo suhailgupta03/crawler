@@ -21,7 +21,8 @@
     "test": "node test/test",
     "cluster-almera": "node src/cluster/cluster.js --i --activate --watch /home/suhail/circus/crawler/url_data/download/ --word แอคมินคลับ --type almera",
     "cluster-lowyat": "node src/cluster/cluster.js --i --activate --watch /home/suhail/circus/crawler/url_data/download/ --type lowyat",
+    "cluster-cboard": "node src/cluster/cluster.js --i --activate --watch /home/suhail/circus/crawler/url_data/download/ --type complaintsboard",
     "almera": "node-debug src/html-parser/almera.js  debug",
-    "clean": "rm -rf ./parser_data/ && :> ./cluster_data/cluster.log && :> ./url_data/url-crawler.log && rm -rf ./url_data/download/ && mkdir ./url_data/download"
+    "clean": "rm -rf ./parser_data/ && mkdir ./parser_data/ && :> ./cluster_data/cluster.log && :> ./url_data/url-crawler.log && rm -rf ./url_data/download/ && mkdir ./url_data/download"
   }
 }

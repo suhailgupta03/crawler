@@ -30,7 +30,7 @@ module.exports.ucrawler = class UCrawler {
             this.seedQueue.enqueue(seed);
         }
 
-        let { logger, csvWriteDir, createHTML, htmlWriteLocation, watchDir, watch } = options;
+        let { logger, csvWriteDir, createHTML, htmlWriteLocation, watchDir, watch, htmlParser } = options;
         if (logger) {
             if (logger !== winston) {
                 console.log(warL.bold(`Not using Winston as the default logger. It is 
@@ -57,6 +57,7 @@ module.exports.ucrawler = class UCrawler {
                 '--i',
                 '--activate',
                 `--watch ${watchDir}`,
+                `--type ${htmlParser}`
             ]);
 
 

@@ -3,5 +3,6 @@
  */
 module.exports = [
     'almera',
-    'lowyat'
+    'lowyat',
+    'complaintsboard'
 ];

@@ -32,6 +32,7 @@ module.exports.Worker = class Worker {
                 let task = message.task;
                 let term = message.term;
                 let writeLoc = message.writeLoc;
+                let htmlParser = message.htmlParser;
                 try {
                     let r = await Worker[action]({ filePath: task, term, writeLoc, htmlParser });
                     /**

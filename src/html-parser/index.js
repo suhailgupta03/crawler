@@ -11,7 +11,7 @@ class Hnalyzer {
                 try {
                     // Load and begin parsing
                     const $ = cheerio.load(fs.readFileSync(filePath));
-                    let responseList = loadParser(htmlParser)($, filePath, {filter});
+                    let responseList = Hnalyzer.loadParser(htmlParser)($, filePath, {filter});
                     return Promise.resolve(responseList);
                 } catch (err) {
                     return Promise.reject(err); // Report the error back
@@ -36,6 +36,9 @@ class Hnalyzer {
                 break;
             case 'lowyat':
                 parser = require('./lowyat');
+                break;
+            case 'complaintsboard':
+                parser = require('./complaintsboard');
                 break;
             default:
                 break;

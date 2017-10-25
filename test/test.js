@@ -10,7 +10,7 @@ winston.add(winston.transports.File, {
 winston.remove(winston.transports.Console);
 
 const seedList = [
-    'https://forum.lowyat.net/'
+    'https://www.complaintsboard.com/complaints/dominos-pizza-pizza-and-service-c932766.html'
 ];
 
 let crawler = new ucrawler(seedList, {
@@ -19,7 +19,8 @@ let crawler = new ucrawler(seedList, {
     createHTML: process.env.CREATE_HTML == 'true' ? true : false,
     htmlWriteLocation: process.env.HTML_WRITE_DIR,
     watchDir: process.env.WATCH_DIR,
-    watch: process.env.WATCH == 'true' ? true : false
+    watch: process.env.WATCH == 'true' ? true : false,
+    htmlParser: 'complaintsboard'
 });
 
 crawler.start();
