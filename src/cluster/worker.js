@@ -33,7 +33,7 @@ module.exports.Worker = class Worker {
                 let term = message.term;
                 let writeLoc = message.writeLoc;
                 try {
-                    let r = await Worker[action]({ filePath: task, term, writeLoc });
+                    let r = await Worker[action]({ filePath: task, term, writeLoc, htmlParser });
                     /**
                      * Note: process.send uses JSON.stringify() internally to 
                      * serialize the message.
@@ -68,13 +68,13 @@ module.exports.Worker = class Worker {
         });
     }
 
-    static async _process_file({ filePath, term, writeLoc }) {
+    static async _process_file({ filePath, term, writeLoc, htmlParser }) {
         if (!filePath)
             return Promise.reject('FilePath cannot be empty');
 
         try {
             let response = Worker.childResponseTemplate();
-            let responseList = await Hnalyzer.parse(filePath, { filter: term });
+            let responseList = await Hnalyzer.parse(filePath, { filter: term, htmlParser });
             response.proof = responseList; // proof; container of the response; the proof of work done
             // Create a file with the processed data
             response.proof.system_info = getSystemInfo();

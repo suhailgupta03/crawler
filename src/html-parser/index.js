@@ -1,18 +1,17 @@
 const cheerio = require('cheerio')
 const fs = require('fs');
 const path = require('path');
-const almera = require('./almera');
 
 class Hnalyzer {
 
-    static parse(filePath, {filter}) {
+    static parse(filePath, {filter, htmlParser}) {
         if (filePath) {
             let ext = path.extname(filePath);
             if (ext.toLowerCase() == '.html') {
                 try {
                     // Load and begin parsing
                     const $ = cheerio.load(fs.readFileSync(filePath));
-                    let responseList = almera($, filePath, {filter});
+                    let responseList = loadParser(htmlParser)($, filePath, {filter});
                     return Promise.resolve(responseList);
                 } catch (err) {
                     return Promise.reject(err); // Report the error back
@@ -22,6 +21,26 @@ class Hnalyzer {
                 return Promise.reject('Can only parse HTML files'); // Report the error back
             }
         }
+    }
+
+    /**
+     * Dynamically loads the HTML parser based upon the
+     * name string passed
+     * @param {String} name 
+     */
+    static loadParser(name) {
+        let parser;
+        switch(name) {
+            case 'almera':
+                parser = require('./almera');
+                break;
+            case 'lowyat':
+                parser = require('./lowyat');
+                break;
+            default:
+                break;
+        }
+        return parser;
     }
 }
 

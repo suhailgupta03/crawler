@@ -1,4 +1,5 @@
 const { Worker, WORKER_ACTION_TYPE, WORKER_RESPONSE_TYPE } = require('./worker');
+const htmlParserAvailable = require('../html-parser/type');
 const Queue = require('queue-fifo');
 const crypto = require('crypto');
 const engagementStatus = {
@@ -23,6 +24,7 @@ module.exports = class Master {
             this.workerRoster = {};
             this.serviceMap = {};
             this.term = '';
+            this.htmlParserType = '';
         }
         this.logger = logService;
     }
@@ -100,6 +102,20 @@ module.exports = class Master {
     termSearch(t) {
         this.term = t;
         return this;
+    }
+
+    /**
+     * Inits the HTML parser type
+     * @param {String} ptype 
+     */
+    parserType(ptype) {
+        if(ptype && htmlParserAvailable.includes(ptype)) {
+            this.htmlParserType = ptype;
+            return this;
+        }else {
+            this.logger.error(`Invalid parser type ${ptype}`);
+            throw new Error(`Invalid parser type ${ptype}. Available ${htmlParserAvailable.join(',')}`);
+        }
     }
 
     /**
@@ -255,6 +271,7 @@ module.exports = class Master {
                         this.workerRoster[workerId]['ref'].send({
                             task: this.jobQueue.dequeue(),
                             action: WORKER_ACTION_TYPE.PROCESS_FILE,
+                            htmlParser: this.htmlParserType, // Name of the HTML parser to be used
                             logger: this.logger,
                             term: this.term,
                             writeLoc: process.env.PARSED_POST_FILE_LOC // This tells where to write the file after 

@@ -16,7 +16,7 @@ async function delFiles(fpath, days = 4) {
         });
         // Now filelist only contains the HTML files
         fileList.map(async (file) => {
-            // UNIXTIMESTAMP_EIGHTRANDOMBYTES_HEXACONVERTEDPOSTURL.html
+            // CR_UNIXTIMESTAMP_EIGHTRANDOMBYTES_HEXACONVERTEDPOSTURL.html
             let fileBreak = file.split('_');
             let fileTS = fileBreak[1];
             if (moment().diff(moment.unix(fileTS), 'days') >= days) {

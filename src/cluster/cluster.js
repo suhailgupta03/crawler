@@ -59,6 +59,15 @@ class Cluster {
                         let ssearch = specificSearch[0].replace('--word','').trim();
                         this.master.termSearch(ssearch); // Inits the term filter to be used for file processing
                     }
+
+                    let parserType = argStr.match(/[-]{2}type\s[\w]+/);
+                    if(parserType) {
+                        let ptype = parserType[0].replace('--type','').trim();
+                        this.master.parserType(ptype);
+                    }else {
+                        winston.error('FATAL: Parser type cannot be empty');
+                        console.log(chalk.red.bold('FATAL: Parser type cannot be empty.'));
+                    }
                 }
             }
         } else

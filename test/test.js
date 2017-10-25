@@ -10,7 +10,7 @@ winston.add(winston.transports.File, {
 winston.remove(winston.transports.Console);
 
 const seedList = [
-    'http://almerathailand.com/index.php?topic=23437'
+    'https://forum.lowyat.net/'
 ];
 
 let crawler = new ucrawler(seedList, {
