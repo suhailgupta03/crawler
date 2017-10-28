@@ -10,7 +10,7 @@ winston.add(winston.transports.File, {
 winston.remove(winston.transports.Console);
 
 const seedList = [
-    'https://www.complaintsboard.com/complaints/dominos-pizza-pizza-and-service-c932766.html'
+    'https://www.complaintsboard.com/complaints/vodacom-failure-to-adhere-to-own-policies-c925641.html'
 ];
 
 let crawler = new ucrawler(seedList, {
@@ -24,7 +24,8 @@ let crawler = new ucrawler(seedList, {
     throttling: {
         requests: process.env.THROTTLE_MIN_HTTP_REQUEST,
         milliseconds: process.env.THROTTLE_MILLI_SECONDS
-    }
+    },
+    urlPatternToFollow: process.env.URL_RULE_TO_FOLLOW || null
 });
 
 crawler.start();

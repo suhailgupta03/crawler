@@ -118,7 +118,7 @@ class Cluster {
                 winston.info(`Engaged: ${workerStats.engaged} Idle: ${workerStats.idle}`);
                 // Log the worker stats
             }
-        }, 6000);
+        }, 20000);
     }
 
     /**

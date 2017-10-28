@@ -31,7 +31,7 @@ module.exports.ucrawler = class UCrawler {
             this.seedQueue.enqueue(seed);
         }
 
-        let { logger, csvWriteDir, createHTML, htmlWriteLocation, watchDir, watch, htmlParser, throttling } = options;
+        let { logger, csvWriteDir, createHTML, htmlWriteLocation, watchDir, watch, htmlParser, throttling, urlPatternToFollow } = options;
         if (logger) {
             if (logger !== winston) {
                 console.log(warL.bold(`Not using Winston as the default logger. It is 
@@ -75,9 +75,11 @@ module.exports.ucrawler = class UCrawler {
             requests: 1,
             milliseconds: 30000 // 30 seconds
         };
-        
+
+        this.urlPatternToFollow = urlPatternToFollow;
+
         httpThrottle.configure(this.throttling); // Configure the http-throttle-request module
-        console.log(warL.bgWhiteBright(`\nNote: Throttling set at ${this.throttling.requests} requests per ${this.throttling.milliseconds/1000} seconds\n`));
+        console.log(warL.bgWhiteBright(`\nNote: Throttling set at ${this.throttling.requests} requests per ${this.throttling.milliseconds / 1000} seconds\n`));
         this.init();
     }
 
@@ -221,7 +223,7 @@ module.exports.ucrawler = class UCrawler {
                     return this.getNextSeed();
                 }
             } else {
-                return this.crawl(head, this.recursionRefMap[head].pop());
+                return this.crawl(head, this.crawlPop(head));
             }
         }
 
@@ -267,7 +269,7 @@ module.exports.ucrawler = class UCrawler {
                      */
                     console.log(errL(`\nNothing found for ${url}`));
                     winston.error(`Nothing found for ${url}`);
-                    return this.crawl(head, this.recursionRefMap[head].pop());
+                    return this.crawl(head, this.crawlPop(head));
                 }
 
                 // Get all the anchor tags using the anchor match pattern
@@ -366,7 +368,7 @@ module.exports.ucrawler = class UCrawler {
                 }
 
                 if (this.recursionRefMap[head].length > 0)
-                    return this.crawl(head, this.recursionRefMap[head].pop());
+                    return this.crawl(head, this.crawlPop(head));
                 else {
                     this.currentLevel = this.recursionDepth;
                     return this.crawl(head, null); // Will proceed to the next seed
@@ -378,6 +380,24 @@ module.exports.ucrawler = class UCrawler {
             });
     }
 
+    crawlPop(head) {
+        let toFollow;
+        if (this.urlPatternToFollow) {
+            for (let i = 0; i < this.recursionRefMap[head].length; i++) {
+                console.log(JSON.stringify(this.recursionRefMap[head]))
+                if (this.recursionRefMap[head][i].match(this.urlPatternToFollow)) {
+                    toFollow = this.recursionRefMap[head][i];
+                    this.recursionRefMap[head].splice(this.recursionRefMap[head].indexOf(toFollow),1);
+                    break;
+                }
+            }
+        }
+
+        if (!toFollow)
+            toFollow = this.recursionRefMap[head].pop();
+
+        return toFollow;
+    }
     /**
      * Wrapper for request module
      * @param {String} url 
