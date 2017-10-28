@@ -1,4 +1,5 @@
 const request = require('request');
+const httpThrottle = require('throttled-request')(request);
 const URL = require('url');
 const chalk = require('chalk');
 const Queue = require('queue-fifo');
@@ -30,7 +31,7 @@ module.exports.ucrawler = class UCrawler {
             this.seedQueue.enqueue(seed);
         }
 
-        let { logger, csvWriteDir, createHTML, htmlWriteLocation, watchDir, watch, htmlParser } = options;
+        let { logger, csvWriteDir, createHTML, htmlWriteLocation, watchDir, watch, htmlParser, throttling } = options;
         if (logger) {
             if (logger !== winston) {
                 console.log(warL.bold(`Not using Winston as the default logger. It is 
@@ -70,6 +71,13 @@ module.exports.ucrawler = class UCrawler {
             this.htmlWriteLoc = htmlWriteLocation;
         }
 
+        this.throttling = (throttling) ? throttling : { // Default throttle
+            requests: 1,
+            milliseconds: 30000 // 30 seconds
+        };
+        
+        httpThrottle.configure(this.throttling); // Configure the http-throttle-request module
+        console.log(warL.bgWhiteBright(`\nNote: Throttling set at ${this.throttling.requests} requests per ${this.throttling.milliseconds/1000} seconds\n`));
         this.init();
     }
 
@@ -100,7 +108,7 @@ module.exports.ucrawler = class UCrawler {
             );
 
             console.log(statsL(table.toString()));
-        }, 4000);
+        }, 15000);
 
         return this.getNextSeed();
     }
@@ -380,7 +388,8 @@ module.exports.ucrawler = class UCrawler {
             return Promise.reject('Request URL cannot be empty');
 
         return new Promise((res, rej) => {
-            request(url, (err, resp, body) => {
+
+            httpThrottle(url, (err, resp, body) => {
                 if (err)
                     rej(err);
                 else

@@ -2,10 +2,14 @@ const { Worker, WORKER_ACTION_TYPE, WORKER_RESPONSE_TYPE } = require('./worker')
 const htmlParserAvailable = require('../html-parser/type');
 const Queue = require('queue-fifo');
 const crypto = require('crypto');
+const chalk = require('chalk');
+
 const engagementStatus = {
     'ENGAGED': 'engaged',
     'IDLE': 'idle'
 };
+
+let errL = chalk.red;
 
 module.exports = class Master {
 

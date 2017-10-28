@@ -20,7 +20,11 @@ let crawler = new ucrawler(seedList, {
     htmlWriteLocation: process.env.HTML_WRITE_DIR,
     watchDir: process.env.WATCH_DIR,
     watch: process.env.WATCH == 'true' ? true : false,
-    htmlParser: 'complaintsboard'
+    htmlParser: 'complaintsboard',
+    throttling: {
+        requests: process.env.THROTTLE_MIN_HTTP_REQUEST,
+        milliseconds: process.env.THROTTLE_MILLI_SECONDS
+    }
 });
 
 crawler.start();
