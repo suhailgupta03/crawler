@@ -24,7 +24,7 @@ const anchorPattern = /<a[^>]*>([^<]+)<\/a>/g;
 module.exports.ucrawler = class UCrawler {
 
     constructor(seedList = [], options = {}) {
-        this.recursionDepth = 5;
+        this.recursionDepth = 10;
         this.seedQueue = new Queue();
 
         for (let seed of seedList) {
@@ -80,10 +80,15 @@ module.exports.ucrawler = class UCrawler {
 
         httpThrottle.configure(this.throttling); // Configure the http-throttle-request module
         console.log(warL.bgWhiteBright(`\nNote: Throttling set at ${this.throttling.requests} requests per ${this.throttling.milliseconds / 1000} seconds\n`));
+        this.interval = null;
         this.init();
     }
 
     init() {
+        this.resetCrawlerVar();
+    }
+
+    resetCrawlerVar() {
         this.recursionRefMap = {};
         this.currentLevel = 0;
         this.headUrlsLoaded = false;
@@ -92,10 +97,8 @@ module.exports.ucrawler = class UCrawler {
         this.limeSeed = null;
         this.visitedList = [];
         this.urlContainerSet = new Set();
-        this.interval = null;
         this.lastVisited = null;
     }
-
     /**
      * Call this function to start the URL crawl process
      */
@@ -153,7 +156,7 @@ module.exports.ucrawler = class UCrawler {
         }
 
         if (!this.seedQueue.isEmpty()) {
-
+            this.resetCrawlerVar();
             this.urlContainerSet.clear(); // Empty the URL container at each dequeue operation
             let url = this.seedQueue.dequeue();
             this.limeSeed = url;

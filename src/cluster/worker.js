@@ -79,7 +79,7 @@ module.exports.Worker = class Worker {
             response.proof = responseList; // proof; container of the response; the proof of work done
             // Create a file with the processed data
             response.proof.system_info = getSystemInfo();
-                let filename = `${moment().valueOf()}${crypto.randomBytes(16).toString('hex')}_forum_139284.json`;
+                let filename = `${moment().valueOf()}${crypto.randomBytes(16).toString('hex')}_forum_209809.json`;
             await fs.writeFileAsync(`${writeLoc}${filename}`, JSON.stringify(response.proof));
             // Wait till the file is written
             return Promise.resolve(response);
@@ -103,14 +103,14 @@ module.exports.Worker = class Worker {
 function getSystemInfo(platform = 'forum') {
     let id;
     if ('forum' == platform)
-        id = 139284;
+        id = 209809;
 
     return {
         "id": id,
         "config_category": platform,
         "name": "https://pantip.com/tag/nissan",
         "account_id": "",
-        "platform_id": "6ce32185-a789-11e4-a34f-74867a1157ba",
+        "platform_id": "6ce32185-a789-11e4-a34f-74867a1157bb",
         "platform": "forum",
         "language_id": null,
         "country_id": "6cb624cb-a789-11e4-a34f-74867a1157ba",

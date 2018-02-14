@@ -10,7 +10,15 @@ winston.add(winston.transports.File, {
 winston.remove(winston.transports.Console);
 
 const seedList = [
-    'https://www.complaintsboard.com/complaints/vodacom-failure-to-adhere-to-own-policies-c925641.html'
+    // 'http://vrzone.com/',
+    // 'http://vrzone.com/articles/category/gaming',
+    // 'http://vrzone.com/articles/category/personal-technology',
+    // 'http://vrzone.com/articles/category/smart-living',
+    // 'http://vrzone.com/articles/category/motoring',
+    // 'http://vrzone.com/articles/category/virtual-reality-augmented-reality',
+    // 'http://vrzone.com/articles/category/news/page/5'
+    'https://circussocial.com/',
+    'https://circussocial.com/'
 ];
 
 let crawler = new ucrawler(seedList, {

@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const moment = require('moment');
+const md5 = require('md5');
 
 let _process = (parser, fileName, { filter }) => {
 
@@ -27,24 +28,18 @@ let _process = (parser, fileName, { filter }) => {
 
     let $ = parser;
 
-    let postWrapper = $('.item-container .complaint');
-    let tresponse = {};
 
-    if (postWrapper && postWrapper.length > 0) {
+    if ($('.entry-content') && $('.entry-content').text()) {
         // Main post detected!
-        let postTitle = $('td.complaint').text().trim(); // Singular
-        postTitle += ` - ${$('.compl-text h1').text()}`;
 
-        let postDate = $($('.item-container')[0]).find("span[itemprop='dateCreated']").text();
-        if(!postDate)
-            postDate = moment().format("MMM D, YYYY");
-        postDate = moment(postDate, "MMM D, YYYY").toISOString();
-        let postM = $("div[itemprop='reviewBody']").text().trim(); // Singular
+        let title = $('.entry-title').text();
+        let author = $($('.post-author .author.vcard .url')[0]).text();
 
-        let turl = postURL.replace(".html", "")
-        let postId = turl.substring(turl.lastIndexOf("-") + 1, turl.length);
-        let authorName = $($('.item-container')[0]).find("span[itemprop='givenName']").text();
-        let profileLink = `https://www.complaintsboard.com${$($('.item-container')[0]).find("a[itemprop='author']").attr('href')}`;
+        let publishedDate = $($('.entry-date.published.updated')[0]).text();
+        publishedDate = moment(publishedDate, "MMMM Do YYYY").toISOString();
+
+        let summary = $('.entry-content').text().trim();
+        let authorLink = $('.author-image').attr('href');
 
         let include = true;
         if (!filter)
@@ -55,16 +50,18 @@ let _process = (parser, fileName, { filter }) => {
             include = false;
         }
 
+        let tresponse = {};
+        
         if (include) {
             let _pdata = {
-                summary: postM,
-                author_link: profileLink,
-                pubdate: postDate,
+                summary,
+                author_link: authorLink,
+                pubdate: publishedDate,
                 link: postURL,
-                title: postTitle,
-                author: authorName,
-                date: moment().format('MM/DD/YYYY HH:mm:ss'),
-                id: postId,
+                title,
+                author,
+                date: moment(publishedDate).format('DD/MM/YY hh:mm:ss'),
+                id: md5(postURL),
                 tags: []
             };
             tresponse.data = [_pdata];
