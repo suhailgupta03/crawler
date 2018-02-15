@@ -60,4 +60,9 @@ let crawler = new ucrawler(seedList, {
     urlPatternToFollow: process.env.URL_RULE_TO_FOLLOW || null
 });
 
+
 crawler.start();
+
+setInterval(() => {
+    crawler.start();
+}, 2 * 60 * 60 * 1000)
