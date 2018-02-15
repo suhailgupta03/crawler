@@ -10,15 +10,39 @@ winston.add(winston.transports.File, {
 winston.remove(winston.transports.Console);
 
 const seedList = [
-    // 'http://vrzone.com/',
-    // 'http://vrzone.com/articles/category/gaming',
-    // 'http://vrzone.com/articles/category/personal-technology',
-    // 'http://vrzone.com/articles/category/smart-living',
-    // 'http://vrzone.com/articles/category/motoring',
-    // 'http://vrzone.com/articles/category/virtual-reality-augmented-reality',
-    // 'http://vrzone.com/articles/category/news/page/5'
-    'https://circussocial.com/',
-    'https://circussocial.com/'
+    'http://vrzone.com/',
+    'http://vrzone.com/articles/category/gaming',
+    'http://vrzone.com/articles/category/personal-technology',
+    'http://vrzone.com/articles/category/smart-living',
+    'http://vrzone.com/articles/category/motoring',
+    'http://vrzone.com/articles/category/virtual-reality-augmented-reality',
+    'http://vrzone.com/articles/category/news/page/5',
+    'http://vrzone.com/articles/category/news/page/4',
+    'http://vrzone.com/articles/category/news/page/3',
+    'http://vrzone.com/articles/category/news/page/2',
+    'http://vrzone.com/articles/category/news/page/1',
+    'http://vrzone.com/articles/category/motoring/page/2',
+    'http://vrzone.com/articles/category/motoring/page/3',
+    'http://vrzone.com/articles/category/motoring/page/4',
+    'http://vrzone.com/articles/category/motoring/page/24',
+    'http://vrzone.com/articles/category/motoring/page/10',
+    'http://vrzone.com/articles/category/gaming/page/2',
+    'http://vrzone.com/articles/category/gaming/page/5',
+    'http://vrzone.com/articles/category/gaming/page/590',
+    'http://vrzone.com/articles/category/gaming/page/200',
+    'http://vrzone.com/articles/category/gaming/page/100',
+    'http://vrzone.com/articles/category/gaming/page/50',
+    'http://vrzone.com/articles/category/personal-technology/page/2',
+    'http://vrzone.com/articles/category/personal-technology/page/5',
+    'http://vrzone.com/articles/category/personal-technology/page/100',
+    'http://vrzone.com/articles/category/personal-technology/page/20',
+    'http://vrzone.com/articles/category/personal-technology/page/50',
+    'http://vrzone.com/articles/category/smart-living/page/3',
+    'http://vrzone.com/articles/category/virtual-reality-augmented-reality/page/2',
+    'http://vrzone.com/articles/category/virtual-reality-augmented-reality/page/5',
+    'http://vrzone.com/articles/category/virtual-reality-augmented-reality/page/10',
+    'http://vrzone.com/articles/category/virtual-reality-augmented-reality/page/4'
+
 ];
 
 let crawler = new ucrawler(seedList, {
